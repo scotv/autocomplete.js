@@ -13,6 +13,9 @@ var AutoComplete = (function () {
         if (this) {
             var i,
                 self = this,
+                // this attribute of li will store key of each json item
+                // like the value in select/option
+                acKeyIndentifier = 'data-autocomplete-item-key',
                 defaultParams = {
                     limit:     0,
                     method:    "GET",
@@ -22,7 +25,10 @@ var AutoComplete = (function () {
                         "Content-type": "application/x-www-form-urlencoded"
                     },
                     select: function(input, item) {
-                        attr(input, {"data-autocomplete-old-value": input.value = attr(item, "data-autocomplete-value", item.innerHTML)});
+                        var extraAttrs = {};
+                        extraAttrs = {"data-autocomplete-old-value": input.value = attr(item, "data-autocomplete-value", item.innerHTML)};
+                        extraAttrs[acKeyIndentifier] = attr(item, acKeyIndentifier);
+                        attr(input, extraAttrs);
                     },
                     open: function(input, result) {
                         var self = this;
@@ -32,6 +38,14 @@ var AutoComplete = (function () {
                             };
                         });
                     },
+                    postJsonItemValue: function(x){
+                        // for each json item, how do we stringfy it as the li.innnerText
+                        return x;
+                    },
+                    postJsonItemKey: function(x){
+                        // for each json item, how do we stringfy it as the li.value
+                        return x;
+                    },
                     post: function(result, response, custParams) {
                         try {
                             response = JSON.parse(response);
@@ -39,8 +53,13 @@ var AutoComplete = (function () {
                                 autoReverse = function(param, limit) {
                                     return (limit < 0) ? param.reverse() : param;
                                 },
-                                addLi = function(ul, li, response) {
+                                addLi = function(ul, li, response, key) {
                                     li.innerHTML = response;
+                                    if (key){
+                                        var extraAttrs = {};
+                                        extraAttrs[acKeyIndentifier] = key;
+                                        attr(li, extraAttrs);
+                                    }
                                     ul.appendChild(li);
                                     return createLi();
                                 },
@@ -60,7 +79,7 @@ var AutoComplete = (function () {
                                     response = autoReverse(response, limit);
 
                                     for (; i < length && (i < Math.abs(limit) || !limit); i++) {
-                                        li = addLi(ul, li, response[i]);
+                                        li = addLi(ul, li, custParams.postJsonItemValue(response[i]), custParams.postJsonItemKey(response[i]));
                                     }
                                 } else {
                                     //If the response is an object or an array and that the response is empty, so this script is here, for the message no response.

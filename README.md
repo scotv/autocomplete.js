@@ -6,6 +6,10 @@
 
 autocomplete.js is a Javascript project with purpose to propose an autocomplete, fast, lite and without dependency.
 
+This branch `plus` is only the experimental commits for some new ideas. 
+Pull requests will be sent from the `master` branch.
+
+
 ###Documentation
 
 The documentation is available [here](http://autocomplete-js.com).
